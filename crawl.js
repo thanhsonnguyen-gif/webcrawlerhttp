@@ -1,5 +1,29 @@
 const { JSDOM } = require("jsdom");
 
+async function crawlPage(currentUrl) {
+  try {
+    const resp = await fetch(currentUrl);
+    if (resp.status > 399) {
+      console.log(
+        `have a problem in fetching Url with status code is: ${resp.status}`
+      );
+      return;
+    }
+    const contentType = resp.headers.get("content-type");
+    if (!contentType.includes("text/html")) {
+      console.log(
+        `content-type of page is: ${contentType}, is not format for crawling`
+      );
+      return;
+    }
+    console.log(await resp.text());
+  } catch (error) {
+    console.log(
+      `the link of page for fetching have problem, please check this with error message: ${error}`
+    );
+  }
+}
+
 function getUrlFromHtml(htmlBody, baseUrl) {
   const dom = new JSDOM(htmlBody);
   const linkElements = dom.window.document.querySelectorAll("a");
@@ -40,4 +64,5 @@ function normalizeUrl(urlString) {
 module.exports = {
   normalizeUrl,
   getUrlFromHtml,
+  crawlPage,
 };
